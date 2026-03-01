@@ -22,7 +22,9 @@
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Admin（Continue New Admin）持续迭代优化的前后端分离中后台管理系统框架，开箱即用，持续提供舒适的开发体验。</description>
+    <description>ContiNew Admin（Continue New
+        Admin）持续迭代优化的前后端分离中后台管理系统框架，开箱即用，持续提供舒适的开发体验。
+    </description>
     <url>https://github.com/continew-org/continew-admin</url>
 
     <modules>
@@ -31,6 +33,7 @@
         <module>continew-plugin</module>
         <module>continew-common</module>
         <module>continew-extension</module>
+        <module>continew-finance</module>
     </modules>
 
     <properties>
@@ -48,12 +51,20 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 财务管理模块 -->
+            <dependency>
+                <groupId>top.continew.admin</groupId>
+                <artifactId>continew-finance</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 系统管理模块（存放系统管理模块相关功能，例如：部门管理、角色管理、用户管理等） -->
             <dependency>
                 <groupId>top.continew.admin</groupId>
                 <artifactId>continew-system</artifactId>
                 <version>${revision}</version>
             </dependency>
+
 
             <!-- 公共模块（存放公共工具类，公共配置等） -->
             <dependency>

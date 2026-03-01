@@ -28,6 +28,10 @@ public class ContainerConstants {
      * 用户昵称
      */
     public static final String USER_NICKNAME = "UserNickname";
+    /**
+     * 用户信息
+     */
+    public static final String USER_INFO = "UserInfo";
 
     /**
      * 用户角色 ID 列表

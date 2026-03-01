@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="top.continew.admin.finance.mapper.FinCustomerMapper">
+    <sql id="selectCustomer">
+        SELECT
+            t1.id,
+            t1.create_user,
+            t1.create_time,
+            t1.update_user,
+            t1.update_time,
+            t1.user_id,
+            t1.enable_prepaid,
+            t1.allow_negative_balance,
+            t1.remark,
+            t1.deleted,
+            t1.tenant_id,
+            t2.username,
+            t2.nickname,
+            t2.phone,
+            t2.email,
+            t3.balance
+        FROM fin_customer AS t1
+        LEFT JOIN sys_user AS t2 ON t2.id = t1.user_id
+        LEFT JOIN fin_customer_account AS t3 ON t3.customer_id = t1.id
+    </sql>
+
+    <select id="selectCustomerPage" resultType="top.continew.admin.finance.model.resp.FinCustomerResp">
+        <include refid="selectCustomer" />
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="selectCustomerList" resultType="top.continew.admin.finance.model.resp.FinCustomerResp">
+        <include refid="selectCustomer" />
+        ${ew.customSqlSegment}
+    </select>
+
+    <!-- 字典查询：返回客户ID和昵称 -->
+<!--    <select id="selectCustomerDict" resultType="top.continew.starter.extension.crud.model.resp.LabelValueResp">
+        SELECT
+            t1.id AS value,
+            CONCAT(t2.nickname, ' (', t2.username, ')') AS label
+        FROM fin_customer AS t1
+        LEFT JOIN sys_user AS t2 ON t2.id = t1.user_id
+        WHERE t1.deleted = 0
+        ORDER BY t1.create_time DESC
+    </select>-->
+    <select id="selectCustomerDict" resultType="top.continew.starter.extension.crud.model.resp.LabelValueResp">
+
+        SELECT
+            t1.id AS value,
+            CONCAT(t2.nickname, ' (', t2.username, ')') AS label
+        FROM fin_customer AS t1
+            LEFT JOIN sys_user AS t2 ON t2.id = t1.user_id
+        WHERE t1.deleted = 0
+        ORDER BY t1.create_time DESC
+    </select>
+</mapper>

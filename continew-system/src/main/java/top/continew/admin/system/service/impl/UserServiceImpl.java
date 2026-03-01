@@ -48,6 +48,7 @@ import net.dreamlu.mica.core.result.R;
 import org.dromara.x.file.storage.core.FileInfo;
 import org.dromara.x.file.storage.core.FileStorageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,6 +62,7 @@ import top.continew.admin.common.enums.DisEnableStatusEnum;
 import top.continew.admin.common.enums.GenderEnum;
 import top.continew.admin.common.util.SecureUtils;
 import top.continew.admin.system.enums.OptionCategoryEnum;
+import top.continew.admin.system.event.UserCreateEvent;
 import top.continew.admin.system.mapper.user.UserMapper;
 import top.continew.admin.system.model.entity.DeptDO;
 import top.continew.admin.system.model.entity.RoleDO;
@@ -78,6 +80,7 @@ import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.core.util.CollUtils;
 import top.continew.starter.core.util.FileUploadUtils;
+import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.core.util.validation.CheckUtils;
 import top.continew.starter.encrypt.field.util.EncryptHelper;
 import top.continew.starter.extension.crud.model.query.PageQuery;
@@ -114,6 +117,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, UserDO, UserRes
     private final OnlineUserService onlineUserService;
     private final FileService fileService;
     private final FileStorageService fileStorageService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Resource
     private DeptService deptService;
@@ -145,9 +149,13 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, UserDO, UserRes
     @Override
     public void afterCreate(UserReq req, UserDO user) {
         Long userId = user.getId();
-        baseMapper.lambdaUpdate().set(UserDO::getPwdResetTime, LocalDateTime.now()).eq(UserDO::getId, userId).update();
+        baseMapper.lambdaUpdate()
+                .set(UserDO::getPwdResetTime, LocalDateTime.now())
+                .eq(UserDO::getId, userId)
+                .update();
         // 保存用户和角色关联
         userRoleService.assignRolesToUser(req.getRoleIds(), userId);
+        eventPublisher.publishEvent(new UserCreateEvent(this, req, user));
     }
 
     @Override

@@ -1,0 +1,22 @@
+package top.continew.admin.finance.model.query;
+
+import lombok.Data;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.io.Serial;
+import java.io.Serializable;
+
+/**
+ * 客户物料价格查询条件
+ *
+ * @author Qoder
+ * @since 2026-02-25 16:12:15
+ */
+@Data
+@Schema(description = "客户物料价格查询条件")
+public class FinCustomerMaterialPriceQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+}

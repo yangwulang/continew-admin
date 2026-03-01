@@ -22,6 +22,12 @@
             <artifactId>continew-system</artifactId>
         </dependency>
 
+        <!-- 系统管理模块 -->
+        <dependency>
+            <groupId>top.continew.admin</groupId>
+            <artifactId>continew-finance</artifactId>
+        </dependency>
+
         <!-- 能力开放插件 -->
         <dependency>
             <groupId>top.continew.admin</groupId>

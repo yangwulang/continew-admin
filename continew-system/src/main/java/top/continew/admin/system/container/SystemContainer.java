@@ -19,13 +19,16 @@ package top.continew.admin.system.container;
 import cn.crane4j.annotation.ContainerMethod;
 import cn.crane4j.annotation.MappingType;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import top.continew.admin.common.constant.ContainerConstants;
 import top.continew.admin.system.mapper.RoleMapper;
 import top.continew.admin.system.mapper.UserRoleMapper;
+import top.continew.admin.system.mapper.user.UserMapper;
 import top.continew.admin.system.model.entity.RoleDO;
 import top.continew.admin.system.model.entity.UserRoleDO;
+import top.continew.admin.system.model.entity.user.UserDO;
 
 import java.util.Collections;
 import java.util.List;
@@ -44,6 +47,8 @@ public class SystemContainer {
     private final UserRoleMapper userRoleMapper;
     private final RoleMapper roleMapper;
 
+    private final UserMapper userMapper;
+
     /**
      * 根据用户 ID 列表获取角色 ID 列表
      *
@@ -53,9 +58,9 @@ public class SystemContainer {
     @ContainerMethod(namespace = ContainerConstants.USER_ROLE_ID_LIST, resultKey = "userId", resultType = UserRoleDO.class, type = MappingType.ONE_TO_MANY)
     public List<UserRoleDO> listRoleIdByUserId(List<Long> userIds) {
         return userRoleMapper.lambdaQuery()
-            .select(UserRoleDO::getRoleId, UserRoleDO::getUserId)
-            .in(UserRoleDO::getUserId, userIds)
-            .list();
+                .select(UserRoleDO::getRoleId, UserRoleDO::getUserId)
+                .in(UserRoleDO::getUserId, userIds)
+                .list();
     }
 
     /**
@@ -70,5 +75,19 @@ public class SystemContainer {
             return Collections.emptyList();
         }
         return roleMapper.lambdaQuery().select(RoleDO::getName, RoleDO::getId).in(RoleDO::getId, ids).list();
+    }
+
+    /**
+     * 根据用户ID获取用户数据
+     *
+     * @param id 用户ID
+     * @return 用户信息
+     */
+    @ContainerMethod(namespace = ContainerConstants.USER_INFO, resultType = UserDO.class)
+    public UserDO userInfo(Long id) {
+        if (ObjectUtil.isNull(id)) {
+            return new UserDO();
+        }
+        return userMapper.selectById(id);
     }
 }
