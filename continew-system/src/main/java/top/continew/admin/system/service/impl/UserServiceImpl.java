@@ -54,6 +54,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import top.continew.admin.auth.service.OnlineUserService;
+import top.continew.admin.auth.model.req.RegisterReq;
 import top.continew.admin.common.base.service.BaseServiceImpl;
 import top.continew.admin.common.constant.CacheConstants;
 import top.continew.admin.common.context.UserContext;
@@ -860,5 +861,35 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, UserDO, UserRes
         CheckUtils.throwIf(deptList.size() > 1, "存在多个同名部门 [{}]，请使用完整层级路径，如：公司名:{}", deptName, deptName);
 
         return deptList.get(0);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void register(RegisterReq req) {
+        // 校验图片验证码
+        String captchaKey = CacheConstants.CAPTCHA_KEY_PREFIX + req.getUuid();
+        String captcha = RedisUtils.get(captchaKey);
+        CheckUtils.throwIfBlank(captcha, "验证码已失效");
+        RedisUtils.delete(captchaKey);
+        CheckUtils.throwIf(!captcha.equalsIgnoreCase(req.getCaptcha()), "验证码不正确");
+
+        // 解密密码
+        String rawPassword = SecureUtils.decryptPasswordByRsaPrivateKey(req.getPassword(), "密码解密失败", true);
+
+        // 校验用户名和手机号唯一性
+        this.checkUsernameRepeat(req.getUsername(), null);
+        this.checkPhoneRepeat(req.getPhone(), null, "手机号为 [{}] 的用户已存在");
+
+        // 创建用户
+        UserDO user = new UserDO();
+        user.setUsername(req.getUsername());
+        user.setNickname(req.getNickname());
+        user.setPassword(rawPassword);
+        user.setPhone(req.getPhone());
+        user.setGender(GenderEnum.UNKNOWN);
+        user.setStatus(DisEnableStatusEnum.ENABLE);
+        user.setIsSystem(false);
+        user.setPwdResetTime(LocalDateTime.now());
+        baseMapper.insert(user);
     }
 }

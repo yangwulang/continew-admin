@@ -31,6 +31,7 @@ import me.zhyd.oauth.utils.AuthStateUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import top.continew.admin.auth.model.req.LoginReq;
+import top.continew.admin.auth.model.req.RegisterReq;
 import top.continew.admin.auth.model.resp.LoginResp;
 import top.continew.admin.auth.model.resp.RouteResp;
 import top.continew.admin.auth.model.resp.SocialAuthAuthorizeResp;
@@ -70,6 +71,13 @@ public class AuthController {
     @PostMapping("/login")
     public LoginResp login(@RequestBody @Valid LoginReq req, HttpServletRequest request) {
         return authService.login(req, request);
+    }
+
+    @SaIgnore
+    @Operation(summary = "注册", description = "用户注册")
+    @PostMapping("/register")
+    public void register(@RequestBody @Valid RegisterReq req) {
+        userService.register(req);
     }
 
     @Operation(summary = "登出", description = "注销用户的当前登录")

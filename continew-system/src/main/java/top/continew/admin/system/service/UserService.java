@@ -18,6 +18,7 @@ package top.continew.admin.system.service;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.multipart.MultipartFile;
+import top.continew.admin.auth.model.req.RegisterReq;
 import top.continew.admin.common.base.service.BaseService;
 import top.continew.admin.system.model.entity.user.UserDO;
 import top.continew.admin.system.model.query.UserQuery;
@@ -155,4 +156,11 @@ public interface UserService extends BaseService<UserResp, UserDetailResp, UserQ
      * @return 用户数量
      */
     Long countByDeptIds(List<Long> deptIds);
+
+    /**
+     * 用户注册
+     *
+     * @param req 注册请求参数
+     */
+    void register(RegisterReq req);
 }
