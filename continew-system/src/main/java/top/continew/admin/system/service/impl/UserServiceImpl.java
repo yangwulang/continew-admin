@@ -80,7 +80,6 @@ import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.core.util.CollUtils;
 import top.continew.starter.core.util.FileUploadUtils;
-import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.core.util.validation.CheckUtils;
 import top.continew.starter.encrypt.field.util.EncryptHelper;
 import top.continew.starter.extension.crud.model.query.PageQuery;
@@ -149,10 +148,7 @@ public class UserServiceImpl extends BaseServiceImpl<UserMapper, UserDO, UserRes
     @Override
     public void afterCreate(UserReq req, UserDO user) {
         Long userId = user.getId();
-        baseMapper.lambdaUpdate()
-                .set(UserDO::getPwdResetTime, LocalDateTime.now())
-                .eq(UserDO::getId, userId)
-                .update();
+        baseMapper.lambdaUpdate().set(UserDO::getPwdResetTime, LocalDateTime.now()).eq(UserDO::getId, userId).update();
         // 保存用户和角色关联
         userRoleService.assignRolesToUser(req.getRoleIds(), userId);
         eventPublisher.publishEvent(new UserCreateEvent(this, req, user));

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package top.continew.admin.finance.service.impl;
 
 import cn.hutool.core.util.StrUtil;
@@ -5,13 +21,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
-import org.dromara.sms4j.starter.utils.ConfigUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import top.continew.admin.common.base.service.BaseServiceImpl;
-import top.continew.admin.finance.event.CustomerRechargeEvent;
 import top.continew.admin.finance.mapper.FinCustomerMapper;
-import top.continew.admin.finance.model.entity.FinAccountTransactionDO;
 import top.continew.admin.finance.model.entity.FinCustomerDO;
 import top.continew.admin.finance.model.query.FinCustomerQuery;
 import top.continew.admin.finance.model.req.FinCustomerReq;
@@ -36,20 +49,13 @@ import java.util.List;
  */
 @Service
 @RequiredArgsConstructor
-public class FinCustomerServiceImpl extends BaseServiceImpl<
-        FinCustomerMapper,
-        FinCustomerDO,
-        FinCustomerResp,
-        FinCustomerDetailResp,
-        FinCustomerQuery,
-        FinCustomerReq
-        > implements FinCustomerService {
+public class FinCustomerServiceImpl extends BaseServiceImpl<FinCustomerMapper, FinCustomerDO, FinCustomerResp, FinCustomerDetailResp, FinCustomerQuery, FinCustomerReq> implements FinCustomerService {
 
     @Override
     public PageResp<FinCustomerResp> page(FinCustomerQuery query, PageQuery pageQuery) {
         QueryWrapper<FinCustomerDO> queryWrapper = buildCustomQueryWrapper(query);
-        IPage<FinCustomerResp> page = baseMapper.selectCustomerPage(
-                new Page<>(pageQuery.getPage(), pageQuery.getSize()), queryWrapper);
+        IPage<FinCustomerResp> page = baseMapper.selectCustomerPage(new Page<>(pageQuery.getPage(), pageQuery
+            .getSize()), queryWrapper);
         return PageResp.build(page);
     }
 
@@ -71,11 +77,9 @@ public class FinCustomerServiceImpl extends BaseServiceImpl<
         QueryWrapper<FinCustomerDO> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("t1.deleted", 0);
         if (query != null && StrUtil.isNotBlank(query.getUsername())) {
-            queryWrapper.and(w -> w
-                    .like("t2.username", query.getUsername())
-                    .or()
-                    .like("t2.nickname", query.getUsername())
-            );
+            queryWrapper.and(w -> w.like("t2.username", query.getUsername())
+                .or()
+                .like("t2.nickname", query.getUsername()));
         }
         queryWrapper.orderByDesc("t1.create_time");
         return queryWrapper;

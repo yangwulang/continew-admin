@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package top.continew.admin.finance.model.req;
-
-import jakarta.validation.constraints.*;
+package top.continew.admin.finance.model.entity;
 
 import lombok.Data;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+import com.baomidou.mybatisplus.annotation.TableName;
 
-import org.hibernate.validator.constraints.Length;
+import top.continew.admin.common.base.model.entity.TenantBaseDO;
+
 import java.io.Serial;
-import java.io.Serializable;
 import java.math.BigDecimal;
 
 /**
- * 客户账户创建或修改参数
+ * 客户地址实体
  *
- * @author Qoder
- * @since 2026-02-25 16:11:51
+ * @author generator
+ * @since 2026-03-01 21:11:17
  */
 @Data
-@Schema(description = "客户账户创建或修改参数")
-public class FinCustomerAccountReq implements Serializable {
+@TableName("fin_customer_address")
+public class FinCustomerAddressDO extends TenantBaseDO {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -43,27 +41,60 @@ public class FinCustomerAccountReq implements Serializable {
     /**
      * 客户ID
      */
-    @Schema(description = "客户ID")
-    @NotNull(message = "客户ID不能为空")
     private Long customerId;
 
     /**
-     * 当前余额
+     * 联系人姓名
      */
-    @Schema(description = "当前余额")
-    @NotNull(message = "当前余额不能为空")
-    private BigDecimal balance;
+    private String contactName;
 
     /**
-     * 币种
+     * 联系人电话
      */
-    @Schema(description = "币种")
-    @Length(max = 20, message = "币种长度不能超过 {max} 个字符")
-    private String currency;
+    private String contactPhone;
+
+    /**
+     * 省份
+     */
+    private String province;
+
+    /**
+     * 城市
+     */
+    private String city;
+
+    /**
+     * 区/县
+     */
+    private String district;
+
+    /**
+     * 详细地址
+     */
+    private String detailAddress;
+
+    /**
+     * 经度
+     */
+    private BigDecimal longitude;
+
+    /**
+     * 纬度
+     */
+    private BigDecimal latitude;
+
+    /**
+     * 是否默认地址
+     */
+    private Boolean isDefault;
+
+    /**
+     * 备注
+     */
+    private String remark;
 
     /**
      * 是否删除（0-否，其他-是）
      */
-    @Schema(description = "是否删除（0-否，其他-是）")
     private Long deleted;
 }

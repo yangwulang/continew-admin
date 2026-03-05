@@ -14,28 +14,26 @@
  * limitations under the License.
  */
 
-package top.continew.admin.finance.model.req;
-
-import jakarta.validation.constraints.*;
+package top.continew.admin.finance.model.query;
 
 import lombok.Data;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import org.hibernate.validator.constraints.Length;
+import top.continew.starter.data.annotation.Query;
+import top.continew.starter.data.enums.QueryType;
 import java.io.Serial;
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
- * 客户账户创建或修改参数
+ * 客户地址查询条件
  *
- * @author Qoder
- * @since 2026-02-25 16:11:51
+ * @author generator
+ * @since 2026-03-01 21:11:17
  */
 @Data
-@Schema(description = "客户账户创建或修改参数")
-public class FinCustomerAccountReq implements Serializable {
+@Schema(description = "客户地址查询条件")
+public class FinCustomerAddressQuery implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -44,26 +42,13 @@ public class FinCustomerAccountReq implements Serializable {
      * 客户ID
      */
     @Schema(description = "客户ID")
-    @NotNull(message = "客户ID不能为空")
+    @Query(type = QueryType.EQ)
     private Long customerId;
 
     /**
-     * 当前余额
+     * 联系人姓名
      */
-    @Schema(description = "当前余额")
-    @NotNull(message = "当前余额不能为空")
-    private BigDecimal balance;
-
-    /**
-     * 币种
-     */
-    @Schema(description = "币种")
-    @Length(max = 20, message = "币种长度不能超过 {max} 个字符")
-    private String currency;
-
-    /**
-     * 是否删除（0-否，其他-是）
-     */
-    @Schema(description = "是否删除（0-否，其他-是）")
-    private Long deleted;
+    @Schema(description = "联系人姓名")
+    @Query(type = QueryType.LIKE)
+    private String contactName;
 }

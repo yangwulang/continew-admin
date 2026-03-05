@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.continew.admin.finance.mapper.FinCustomerAddressMapper">
+
+    <!-- 分页查询客户地址列表（含关联字段） -->
+    <select id="selectPageWithJoin" resultType="top.continew.admin.finance.model.resp.FinCustomerAddressResp">
+        SELECT
+            t.*
+            , su.nickname AS customerName
+        FROM fin_customer_address t
+        LEFT JOIN fin_customer customer ON t.customer_id = customer.id
+        LEFT JOIN sys_user su ON customer.user_id = su.id
+        <where>
+            t.deleted = 0
+            <if test="query != null and query.customerId != null">
+                AND t.customer_id = #{query.customerId}
+            </if>
+            <if test="query != null and query.contactName != null and query.contactName != ''">
+                AND t.contact_name LIKE CONCAT('%', #{query.contactName}, '%')
+            </if>
+        </where>
+        ORDER BY t.is_default DESC, t.create_time DESC
+    </select>
+
+    <!-- 查询客户地址详情（含关联字段） -->
+    <select id="selectDetailById" resultType="top.continew.admin.finance.model.resp.FinCustomerAddressDetailResp">
+        SELECT
+            t.*
+            , su.nickname AS customerName
+        FROM fin_customer_address t
+        LEFT JOIN fin_customer customer ON t.customer_id = customer.id
+        LEFT JOIN sys_user su ON customer.user_id = su.id
+        WHERE t.id = #{id} AND t.deleted = 0
+    </select>
+
+</mapper>

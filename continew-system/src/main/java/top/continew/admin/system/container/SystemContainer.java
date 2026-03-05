@@ -58,9 +58,9 @@ public class SystemContainer {
     @ContainerMethod(namespace = ContainerConstants.USER_ROLE_ID_LIST, resultKey = "userId", resultType = UserRoleDO.class, type = MappingType.ONE_TO_MANY)
     public List<UserRoleDO> listRoleIdByUserId(List<Long> userIds) {
         return userRoleMapper.lambdaQuery()
-                .select(UserRoleDO::getRoleId, UserRoleDO::getUserId)
-                .in(UserRoleDO::getUserId, userIds)
-                .list();
+            .select(UserRoleDO::getRoleId, UserRoleDO::getUserId)
+            .in(UserRoleDO::getUserId, userIds)
+            .list();
     }
 
     /**

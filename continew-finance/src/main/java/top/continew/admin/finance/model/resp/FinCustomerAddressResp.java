@@ -22,18 +22,17 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import top.continew.admin.common.base.model.resp.BaseResp;
 import java.io.Serial;
-import java.time.*;
 import java.math.BigDecimal;
 
 /**
- * 账户交易信息
+ * 客户地址信息
  *
- * @author Qoder
- * @since 2026-02-25 16:11:59
+ * @author generator
+ * @since 2026-03-01 21:11:17
  */
 @Data
-@Schema(description = "账户交易信息")
-public class FinAccountTransactionResp extends BaseResp {
+@Schema(description = "客户地址信息")
+public class FinCustomerAddressResp extends BaseResp {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -45,52 +44,58 @@ public class FinAccountTransactionResp extends BaseResp {
     private Long customerId;
 
     /**
-     * 交易类型(RECHARGE/DEBIT_BILLING)
+     * 联系人姓名
      */
-    @Schema(description = "交易类型(RECHARGE/DEBIT_BILLING)")
-    private String type;
+    @Schema(description = "联系人姓名")
+    private String contactName;
 
     /**
-     * 收支方向(IN/OUT)
+     * 联系人电话
      */
-    @Schema(description = "收支方向(IN/OUT)")
-    private String direction;
+    @Schema(description = "联系人电话")
+    private String contactPhone;
 
     /**
-     * 交易金额
+     * 省份
      */
-    @Schema(description = "交易金额")
-    private BigDecimal amount;
+    @Schema(description = "省份")
+    private String province;
 
     /**
-     * 变动后余额
+     * 城市
      */
-    @Schema(description = "变动后余额")
-    private BigDecimal balanceAfter;
+    @Schema(description = "城市")
+    private String city;
 
     /**
-     * 关联记账记录ID
+     * 区/县
      */
-    @Schema(description = "关联记账记录ID")
-    private Long billingRecordId;
+    @Schema(description = "区/县")
+    private String district;
 
     /**
-     * 充值/支付渠道
+     * 详细地址
      */
-    @Schema(description = "充值/支付渠道")
-    private String channel;
+    @Schema(description = "详细地址")
+    private String detailAddress;
 
     /**
-     * 交易状态(PENDING/CONFIRMED/CANCELLED)
+     * 经度
      */
-    @Schema(description = "交易状态(PENDING/CONFIRMED/CANCELLED)")
-    private String status;
+    @Schema(description = "经度")
+    private BigDecimal longitude;
 
     /**
-     * 业务发生时间
+     * 纬度
      */
-    @Schema(description = "业务发生时间")
-    private LocalDateTime occurTime;
+    @Schema(description = "纬度")
+    private BigDecimal latitude;
+
+    /**
+     * 是否默认地址
+     */
+    @Schema(description = "是否默认地址")
+    private Boolean isDefault;
 
     /**
      * 备注
@@ -99,8 +104,8 @@ public class FinAccountTransactionResp extends BaseResp {
     private String remark;
 
     /**
-     * 是否删除（0-否，其他-是）
+     * 客户昵称
      */
-    @Schema(description = "是否删除（0-否，其他-是）")
-    private Long deleted;
+    @Schema(description = "客户昵称")
+    private String customerName;
 }

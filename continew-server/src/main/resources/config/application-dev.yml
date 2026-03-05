@@ -253,6 +253,8 @@ sa-token.extension:
     - /*/api-docs/**
     # 本地存储资源
     - /file/**
+    # 客户签名公开接口
+    - /open/sign/**
 
 --- ### Snail Job 配置
 snail-job:

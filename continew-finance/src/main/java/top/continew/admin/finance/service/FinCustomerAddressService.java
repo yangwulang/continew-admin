@@ -17,17 +17,25 @@
 package top.continew.admin.finance.service;
 
 import top.continew.admin.common.base.service.BaseService;
-import top.continew.admin.finance.model.entity.FinCustomerAccountDO;
-import top.continew.admin.finance.model.query.FinCustomerAccountQuery;
-import top.continew.admin.finance.model.req.FinCustomerAccountReq;
-import top.continew.admin.finance.model.resp.FinCustomerAccountDetailResp;
-import top.continew.admin.finance.model.resp.FinCustomerAccountResp;
+import top.continew.admin.finance.model.entity.FinCustomerAddressDO;
+import top.continew.admin.finance.model.query.FinCustomerAddressQuery;
+import top.continew.admin.finance.model.req.FinCustomerAddressReq;
+import top.continew.admin.finance.model.resp.FinCustomerAddressDetailResp;
+import top.continew.admin.finance.model.resp.FinCustomerAddressResp;
 import top.continew.starter.data.service.IService;
 
 /**
- * 客户账户业务接口
+ * 客户地址业务接口
  *
- * @author Qoder
- * @since 2026-02-25 16:11:51
+ * @author generator
+ * @since 2026-03-01 21:11:17
  */
-public interface FinCustomerAccountService extends BaseService<FinCustomerAccountResp, FinCustomerAccountDetailResp, FinCustomerAccountQuery, FinCustomerAccountReq>, IService<FinCustomerAccountDO> {}
+public interface FinCustomerAddressService extends BaseService<FinCustomerAddressResp, FinCustomerAddressDetailResp, FinCustomerAddressQuery, FinCustomerAddressReq>, IService<FinCustomerAddressDO> {
+
+    /**
+     * 设为默认地址
+     *
+     * @param id 地址ID
+     */
+    void setDefault(Long id);
+}

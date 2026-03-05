@@ -1,20 +1,47 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package top.continew.admin.finance.service.impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.IdUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+import org.dromara.x.file.storage.core.FileInfo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import top.continew.admin.common.base.service.BaseServiceImpl;
+import top.continew.admin.common.context.UserContext;
 import top.continew.admin.common.context.UserContextHolder;
+import top.continew.admin.system.service.FileService;
 import top.continew.starter.core.util.validation.CheckUtils;
+import top.continew.starter.extension.tenant.context.TenantContextHolder;
 import top.continew.admin.finance.mapper.FinAccountTransactionMapper;
 import top.continew.admin.finance.mapper.FinBillingItemMapper;
 import top.continew.admin.finance.mapper.FinBillingRecordMapper;
@@ -45,10 +72,10 @@ import top.continew.admin.finance.service.FinBillingRecordService;
  * @author Qoder
  * @since 2026-02-25 16:12:22
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
-public class FinBillingRecordServiceImpl extends BaseServiceImpl<FinBillingRecordMapper, FinBillingRecordDO, FinBillingRecordResp, FinBillingRecordDetailResp, FinBillingRecordQuery, FinBillingRecordReq>
-    implements FinBillingRecordService {
+public class FinBillingRecordServiceImpl extends BaseServiceImpl<FinBillingRecordMapper, FinBillingRecordDO, FinBillingRecordResp, FinBillingRecordDetailResp, FinBillingRecordQuery, FinBillingRecordReq> implements FinBillingRecordService {
 
     private static final String STATUS_DRAFT = "DRAFT";
     private static final String STATUS_PENDING_SIGN = "PENDING_SIGN";
@@ -62,6 +89,7 @@ public class FinBillingRecordServiceImpl extends BaseServiceImpl<FinBillingRecor
     private final FinCustomerMapper finCustomerMapper;
     private final FinCustomerAccountMapper finCustomerAccountMapper;
     private final FinAccountTransactionMapper finAccountTransactionMapper;
+    private final FileService fileService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -121,7 +149,8 @@ public class FinBillingRecordServiceImpl extends BaseServiceImpl<FinBillingRecor
         CheckUtils.throwIf(STATUS_CONFIRMED.equals(record.getStatus()), "已生效的记账记录不允许重新生成签名链接");
 
         String token = IdUtil.fastSimpleUUID();
-        String signUrl = "/finance/sign/billing?token=" + token;
+        Long tenantId = TenantContextHolder.getTenantId();
+        String signUrl = "/finance/sign/billing?token=" + token + "&tenantId=" + tenantId;
 
         record.setSignLinkToken(token);
         record.setSignUrl(signUrl);
@@ -215,5 +244,102 @@ public class FinBillingRecordServiceImpl extends BaseServiceImpl<FinBillingRecor
             return price;
         }
         return material.getDefaultUnitPrice();
+    }
+
+    @Override
+    public Map<String, Object> getBySignToken(String token) {
+        FinBillingRecordDO record = baseMapper.lambdaQuery()
+            .eq(FinBillingRecordDO::getSignLinkToken, token)
+            .eq(FinBillingRecordDO::getDeleted, 0)
+            .one();
+        CheckUtils.throwIfNull(record, "签名链接无效或已过期");
+
+        Map<String, Object> result = new HashMap<>(8);
+        result.put("id", record.getId());
+        result.put("billingDate", record.getBillingDate());
+        result.put("totalAmount", record.getTotalAmount());
+        result.put("status", record.getStatus());
+        result.put("signedAt", record.getSignedAt());
+
+        // 查询明细
+        List<FinBillingItemDO> items = finBillingItemMapper.lambdaQuery()
+            .eq(FinBillingItemDO::getBillingRecordId, record.getId())
+            .eq(FinBillingItemDO::getDeleted, 0)
+            .orderByAsc(FinBillingItemDO::getId)
+            .list();
+        List<Map<String, Object>> itemList = new ArrayList<>();
+        for (FinBillingItemDO item : items) {
+            Map<String, Object> m = new HashMap<>(6);
+            m.put("materialName", item.getMaterialName());
+            m.put("unitPrice", item.getUnitPrice());
+            m.put("quantity", item.getQuantity());
+            m.put("amount", item.getAmount());
+            m.put("remark", item.getRemark());
+            itemList.add(m);
+        }
+        result.put("items", itemList);
+        return result;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void signByToken(String token, String signImageData, String clientIp) {
+        FinBillingRecordDO record = baseMapper.lambdaQuery()
+            .eq(FinBillingRecordDO::getSignLinkToken, token)
+            .eq(FinBillingRecordDO::getDeleted, 0)
+            .one();
+        CheckUtils.throwIfNull(record, "签名链接无效或已过期");
+        CheckUtils.throwIf(!STATUS_PENDING_SIGN.equals(record.getStatus()), "当前状态不允许签名");
+
+        // 公开签名接口无登录态，临时设置用户上下文为账单创建人
+        // 确保文件上传和记录更新时 createUser/updateUser 不为 NULL
+        UserContext tempContext = new UserContext();
+        tempContext.setId(record.getCreateUser());
+        UserContextHolder.setContext(tempContext, false);
+        try {
+            // 将 base64 签名图片上传到文件管理，获取访问 URL
+            String signImageUrl = uploadSignImage(signImageData);
+
+            record.setSignImageUrl(signImageUrl);
+            record.setSignClientIp(clientIp);
+            record.setSignedAt(LocalDateTime.now());
+            record.setStatus(STATUS_PENDING_REVIEW);
+            baseMapper.updateById(record);
+        } finally {
+            UserContextHolder.clearContext();
+        }
+    }
+
+    /**
+     * 将 base64 签名图片上传到文件管理系统
+     *
+     * @param base64Data base64 编码的图片数据（可带 data:image/png;base64, 前缀）
+     * @return 上传后的文件访问 URL
+     */
+    private String uploadSignImage(String base64Data) {
+        // 去除 base64 前缀（如 data:image/png;base64,）
+        String base64 = base64Data;
+        if (base64.contains(",")) {
+            base64 = base64.substring(base64.indexOf(",") + 1);
+        }
+        byte[] imageBytes = Base64.getDecoder().decode(base64);
+
+        // 创建临时文件
+        String fileName = "sign_" + IdUtil.fastSimpleUUID() + ".png";
+        File tempFile = FileUtil.file(FileUtil.getTmpDirPath(), fileName);
+        try {
+            FileUtil.writeBytes(imageBytes, tempFile);
+            // 上传到文件管理系统
+            FileInfo fileInfo = fileService.upload(tempFile, "/sign/");
+            log.info("签名图片上传成功: url={}", fileInfo.getUrl());
+            return fileInfo.getUrl();
+        } catch (IOException e) {
+            throw new RuntimeException("签名图片上传失败", e);
+        } finally {
+            // 清理临时文件
+            if (tempFile.exists()) {
+                FileUtil.del(tempFile);
+            }
+        }
     }
 }
