@@ -29,6 +29,13 @@
             <artifactId>continew-system</artifactId>
         </dependency>
 
+        <!-- Apache PDFBox - PDF 页数检测 -->
+        <dependency>
+            <groupId>org.apache.pdfbox</groupId>
+            <artifactId>pdfbox</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+
     </dependencies>
 
 </project>

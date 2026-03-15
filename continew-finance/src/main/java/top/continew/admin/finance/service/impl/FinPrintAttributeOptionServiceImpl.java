@@ -1,0 +1,41 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package top.continew.admin.finance.service.impl;
+
+import lombok.RequiredArgsConstructor;
+
+import org.springframework.stereotype.Service;
+
+import top.continew.admin.common.base.service.BaseServiceImpl;
+import top.continew.admin.finance.mapper.FinPrintAttributeOptionMapper;
+import top.continew.admin.finance.model.entity.FinPrintAttributeOptionDO;
+import top.continew.admin.finance.model.query.FinPrintAttributeOptionQuery;
+import top.continew.admin.finance.model.req.FinPrintAttributeOptionReq;
+import top.continew.admin.finance.model.resp.FinPrintAttributeOptionDetailResp;
+import top.continew.admin.finance.model.resp.FinPrintAttributeOptionResp;
+import top.continew.admin.finance.service.FinPrintAttributeOptionService;
+
+/**
+ * 打印属性选项业务实现
+ *
+ * @author AI Generator
+ * @since 2026-03-05 19:15:35
+ */
+@Service
+@RequiredArgsConstructor
+public class FinPrintAttributeOptionServiceImpl extends BaseServiceImpl<FinPrintAttributeOptionMapper, FinPrintAttributeOptionDO, FinPrintAttributeOptionResp, FinPrintAttributeOptionDetailResp, FinPrintAttributeOptionQuery, FinPrintAttributeOptionReq> implements FinPrintAttributeOptionService {
+}
